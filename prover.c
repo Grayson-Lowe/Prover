@@ -7,7 +7,7 @@
 
 #define MAXPRED 50
 #define MAXPARAM 10
-#define MAXSENT 200
+#define MAXSENT 100000
 #define MAXSUB 1000
 #define MAXSTRLEN 200
 
@@ -28,7 +28,7 @@ typedef struct {
    int var;   /* Storage for when the parameter is a variable */
 } Parameter;
 
-typedef struct[
+typedef struct{
    Parameter *var;
    Parameter *val;
 } Assignment;
@@ -294,35 +294,37 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
 	int param;
 	int numAssign=0;
 
-	if(sentlist[sent1.neg[p1] == sentlist[sent2.neg[p2]) return -1;
-	if(sentlist[sent1].pred[p1] != sentlist[sent2].pred[p2])) return -1;
+	if(sentlist[sent1].neg[p1] == sentlist[sent2].neg[p2]) return -1;
+	if(sentlist[sent1].pred[p1] != sentlist[sent2].pred[p2]) return -1;
 	
 	Parameter param1[MAXPARAM];
 	Parameter param2[MAXPARAM];
-	param1=sentlist[sent1].param[p1];
-	param2=sentlist[sent2].param[p2];
+	memcpy(param1, sentlist[sent1].param[p1], sizeof(Parameter));
+    memcpy(param1, sentlist[sent2].param[p2], sizeof(Parameter));
+    //param1=sentlist[sent1].param[p1];
+	//param2=sentlist[sent2].param[p2];
 	
 	for(param=0;param<predlist[sentlist[sent1].pred[p1]].numparam;param++)
 	{
 		int i;
 		for(i=0;i<numAssign;i++)
 		{
-			if(!memcmp(&(param1[param], theta[i].var, sizeof(Parameter))) param1[param]=*(theta[i].val);
-			if(!memcmp(&(param2[param], theta[i].var, sizeof(Parameter))) param2[param]=*(theta[i].val);
+			if(!memcmp(&(param1[param]), theta[i].var, sizeof(Parameter))) param1[param]=*(theta[i].val);
+			if(!memcmp(&(param2[param]), theta[i].var, sizeof(Parameter))) param2[param]=*(theta[i].val);
 		}
 
 
-		if(memcpm(&(param1[param]),&(param2[param]),sizeof(Parameter)))
+		if(memcmp(&(param1[param]),&(param2[param]),sizeof(Parameter)))
 		{
 			if(variable(sentlist[sent1].param[p1][param]))
 			{
 				theta[numAssign].var = &(param1[param]);
-				theta[numAssign++].val = &(param2[param];
+				theta[numAssign++].val = &(param2[param]);
 			}
 			else if(variable(sentlist[sent2].param[p2][param]))
 			{
 				theta[numAssign].var = &(param2[param]);
-				theta[numAssign++].val = &(param1[param];
+				theta[numAssign++].val = &(param1[param]);
 			}
 			else return -1;
 
@@ -331,10 +333,34 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
 	return numAssign;
 }
 
+int tryResolution(int sent1, int sent2)
+{
+	Assignment theta [MAXPARAM];
+	int p1,p2;
+	for(p1=0;p1<sentlist[sent1].num_pred;p1++) for(p2=0;p2<sentlist[sent2].num_pred;p2++)
+	{
+		int numAssign = unifyPred(sent1,p1,sent2,p2,theta);
+		if(numAssign >= 0)
+		{
+			int neg[MAXPRED];
+			int pred[MAXPRED];
+			char param[MAXPRED][MAXPARAM][16];
+			int snum;
+
+			//fill up with everything from these two sentences except the two matching predicates
+			//Everything but p1 and p2
+			//
+			//Walk assignment list and perform assignments on all the predicate parameters in char param
+			AddSentence(neg,pred,param,snum,"");
+			sentptr++;
+		}
+
+	}
+}
 /* You must write this function */
 void Resolve(void) {
    RandomResolve();
-   HeuristicResolve();
+   //HeuristicResolve();
    printf("Heuristic vs Random ratios:  hSteps/rSteps = %lg, hTime/rTime = %lg\n\n",(double)hSteps/(double)rSteps, hTime/rTime);
 }
 
@@ -403,29 +429,4 @@ int main(int argc, char *argv[])
       }
    }
    return 0;
-}
-
-int tryResolution(int sent1, int sent2)
-{
-	Assignment theta [MAXPARAM];
-	int p1,p2;
-	for(p1=0;p1<sentlist[sent1].num_pred;p1++) for(p2=0;p2<sentlist[sent2].num_pred;p2++)
-	{
-		int numAssign = unifyPred(sent1,p1,sent2,p2,theta);
-		if(numAssign >= 0)
-		{
-			int neg[MAXPRED];
-			int pred[MAXPRED];
-			char param[MAXPRED][MAXPARAM][16]
-			int snum;
-
-			//fill up with everything from these two sentences except the two matching predicates
-			//Everything but p1 and p2
-			//
-			//Walk assignment list and perform assignments on all the predicate parameters in char param
-			AddSentance(neg,pred,param,snum,"");
-			sentptr++;
-		}
-
-	}
 }
