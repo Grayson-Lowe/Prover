@@ -47,6 +47,12 @@ int sentptr;
 Sentence sentlist[MAXSENT];
 int nextvar;
 
+void Standardize(char param[MAXPRED][MAXPARAM][16], Parameter sparam[MAXPRED][MAXPARAM], int pred[MAXPRED], int snum);
+void StandardizeApartVariables(int s);
+void replaceVar(Parameter *start, Parameter *end, int var, int val);
+void AddPredicatesWithSkip(int destSent, int srcSent, int skipPred);
+void performSubstitions(int s, Assignment *theta, int numAssign);
+
 /* Returns true if the parameter is a constant */
 int constant(Parameter param) {
     if(param.var <= 0 && param.con[0] != '\0') return 1; else return 0;
@@ -361,6 +367,19 @@ int AddSentenceFromResolution(int sent1, int sent2, int p1, int p2, Assignment *
     sentptr++;
 }
 
+/*void StandardizeApartVariables(int s){
+    int oldVars = nextvar;
+    int x, y;
+    for (x=0; x<sentlist[s].num_pred; x++){
+        for(y=0; y<predlist[sentlist[s].pred[x]].numparam; y++){
+            if(sentlist[s].param[x][y].var>0 && sentlist[s].param[x][y].var<oldVars)
+            {
+                replaceVar(&(sentlist[s].param[x][y]), &(sentlist[s].param[MAXPRED][MAXPARAM]), sentlist[s].param[x][y].var, nextvar);
+                nextvar++;
+            }
+        }
+    }
+}*/
 void StandardizeApartVariables(int s)
 {
     int oldVars = nextvar;
@@ -420,19 +439,6 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
 //performing subsititons
 
 
-void StandardizeApartVariables(int s){
-    int oldVars = nextvar;
-    int x, y;
-    for (x=0; x<sentlist[s].num_pred; x++){
-        for(y=0; y<predlist[sentlist[s].pred[x]].numparam; y++){
-            if(sentlist[s].param[x][y].var>0 && sentlist[s].param[x][y].var<oldVars)
-            {
-                replaceVar(&(sentlist[s].param[x][y]), &(sentlist[s].param[MAXPRED][MAXPARAM]), sentlist[s].param[x][y].var, nextvar);
-                nextvar++;
-            }
-        }
-    }
-}
 
 
 
