@@ -286,10 +286,13 @@ void AddKBSentence(void) {
 /* You must write this function */
 void RandomResolve()
 {
+    int i, j;
     rTime=0.0;
     rSteps=0;
     printf("\nRun your RandomResolve routine here\n");
-    tryResolution(0,1);
+    for(i=0; i<sentptr; i++) 
+        for(j=1; j<sentlist[i].num_pred; j++)
+             tryResolution(i,j);
     ShowKB();
     rTime=100.0; /* change these two lines to reflect the actual time, #steps */
     rSteps=20;
@@ -430,7 +433,7 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
         for(y=0; y<predlist[sentlist[s].pred[x]].numparam; y++){
             for(z=0; z<numAssign; z++){
                 if(sentlist[s].param[x][y].var == theta[z].var->var){
-                    //print making assingmen %s, variable(*theta[z].val))?"v":theta[z].val->con);
+                    printf("Making assingment %s", variable(*theta[z].val)?"v":theta[z].val->con);
                     sentlist[s].param[x][y] = *(theta[z]).val;
                 }
             }
@@ -440,8 +443,9 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
 
 void printAssignments(Assignment *theta, int numAssign){
     int i;
-    i=0;
-    return;
+    for(i=0; i<numAssign; i++){
+      //  printf("%s: Ii", 
+    }
 
 }
 

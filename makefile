@@ -4,7 +4,7 @@ OBJ =  prover.o
 LIBS = 
 INC = -I./ 
 DEF = 
-CFLAGS = $(INC) $(DEF) 
+CFLAGS = $(INC) $(DEF) -g
 
 all: $(TARGET)
 
