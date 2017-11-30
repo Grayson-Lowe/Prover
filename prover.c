@@ -52,6 +52,8 @@ void StandardizeApartVariables(int s);
 void replaceVar(Parameter *start, Parameter *end, int var, int val);
 void AddPredicatesWithSkip(int destSent, int srcSent, int skipPred);
 void performSubstitions(int s, Assignment *theta, int numAssign);
+void AddPredicates(int destSent, int srcSent, int someNum, int skipPred);
+void printAssignments(Assignment *theta, int numAssign);
 
 /* Returns true if the parameter is a constant */
 int constant(Parameter param) {
@@ -75,6 +77,19 @@ void InitializeKB(void) {
     memset(predlist,0,MAXPRED*sizeof(Predicate));
     nextvar = 1;
 }   
+
+void AddPredicatesWithSkip(int destSent, int srcSent, int skipPred)
+{
+    AddPredicates(destSent, srcSent, 0 , skipPred);
+    AddPredicates(destSent, srcSent, skipPred+1, sentlist[srcSent].num_pred);
+}
+
+void AddPredicates(int destSent, int srcSent, int someNum, int skipPred)
+{
+    int i;
+    i =0;
+    return;
+}
 
 /* Add a predicate to the predicate list */
 int AddPredicate(char *name, int numparam) {
@@ -274,8 +289,8 @@ void RandomResolve()
     rTime=0.0;
     rSteps=0;
     printf("\nRun your RandomResolve routine here\n");
-    tryResolve(0,1);
-    showKB();
+    tryResolution(0,1);
+    ShowKB();
     rTime=100.0; /* change these two lines to reflect the actual time, #steps */
     rSteps=20;
 
@@ -405,11 +420,6 @@ void replaceVar(Parameter *start, Parameter *end, int var, int val)
 }
 
 
-void AddPredicatesWithSkip(int destSent, int srcSent, int skipPred)
-{
-    AddPredicates(destSent, srcSent, 0 , skipPred);
-    AddPredicates(destSent, srcSent, skipPred+1, sentlist[srcSent].num_pred);
-}
 
 void performSubstitions(int s, Assignment *theta, int numAssign)
 {
@@ -426,6 +436,13 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
             }
         }
     }
+}
+
+void printAssignments(Assignment *theta, int numAssign){
+    int i;
+    i=0;
+    return;
+
 }
 
 //run your randomresolve routine here
