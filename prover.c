@@ -319,21 +319,10 @@ void RandomResolve()
 {
 
     int i, j;
-    int try1, try2;
     int numToTry;
-    rTime=0.0;
+    rTime=clock();
     rSteps=0;
     printf("\nRun your RandomResolve routine here\n");
-    // for(i = 0; i<sentptr; i++){
-    //     for(j=0; j<sentptr; j++){
-    //         int try1 = pairTried(i,j);
-    //         if(try1){
-    //             tryResolution(i, j);
-    //             Pair newPair = {i, j};
-    //             triedPairs[numPairs] = newPair;
-    //         }
-    //     }
-    // }
     numToTry = sentptr-1;
     int curr = sentptr-1;
     for(i=0; i<sentptr-1; i++){ 
@@ -343,10 +332,7 @@ void RandomResolve()
     for(i = 0; i< curr; i++)
     {
         num2 = numToTry;
-        for(j = 0; j<num2; j++){
-            //getNext(pq, &try1);
-            //getNext(pq, &try2);       
-            printf("\nResolving %d and %d\n", try1, try2);   
+        for(j = 0; j<num2; j++){    
             if(pairTried(i, j) == 0){
                 Pair newPair = {.first = i, .second = j};
                 triedPairs[numPairs] = newPair;
@@ -359,9 +345,9 @@ void RandomResolve()
     }
 
     ShowKB();
-    rTime=100.0; /* change these two lines to reflect the actual time, #steps */
+    // rTime=100.0; /* change these two lines to reflect the actual time, #steps */
 
-    printf("RandomResolve: #steps = %i, time = %lg\n\n",rSteps, rTime);
+    printf("RandomResolve: #steps = %i, time = %lg\n\n",rSteps, (clock()-rTime) / CLOCKS_PER_SEC);
 }
 
 /* You must write this function */
