@@ -17,10 +17,10 @@ int rSteps, hSteps;
 
 int RefuteFlag=0;
 
-// typedef struct {
-//     int first;
-//     int second;
-// } Pair;
+typedef struct {
+    int first;
+    int second;
+} Pair;
 
 typedef struct {
     char name[32];   /* Predicate name */
@@ -51,6 +51,7 @@ typedef struct {
 
 int numPairs;
 PQueue *pq;
+Pair triedPairs[MAXSENT*MAXSENT];
 
 int sentptr;
 Sentence sentlist[MAXSENT];
@@ -298,21 +299,21 @@ void AddKBSentence(void) {
     StringToSentence(sent);
 }
 
-// int pairTried(int i, int j){
-//     int k;
-//     for(k=0; k<numPairs; k++){
-//         if(triedPairs[k].first == i){
-//             if(triedPairs[k].second == j){
-//                 return 1;
-//             }
-//         }else if (triedPairs[k].second == i){
-//             if(triedPairs[k].first == j){
-//                 return 1;
-//             }
-//         }
-//     }
-//     return 0;
-// }
+ int pairTried(int i, int j){
+    int k;
+    for(k=0; k<numPairs; k++){
+        if(triedPairs[k].first == i){
+            if(triedPairs[k].second == j){
+                return 1;
+            }
+        }else if (triedPairs[k].second == i){
+            if(triedPairs[k].first == j){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 /* You must write this function */
 void RandomResolve()
 {
@@ -343,11 +344,16 @@ void RandomResolve()
     {
         num2 = numToTry;
         for(j = 0; j<num2; j++){
-            getNext(pq, &try1);
-            getNext(pq, &try2);       
+            //getNext(pq, &try1);
+            //getNext(pq, &try2);       
             printf("\nResolving %d and %d\n", try1, try2);   
-            if(tryResolution(try1, try2) != 0)
-                numToTry++;
+            if(pairTried(i, j) == 0){
+                Pair newPair = {first = i, second = j};
+                triedPairs[numPairs] = newPair;
+                numPairs++;
+                if(tryResolution(i, j) != 0)
+                    numToTry++;
+            }
             rSteps++;
         }
     }
