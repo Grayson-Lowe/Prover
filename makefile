@@ -12,5 +12,5 @@ $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET) $(LIBS)
 
 clean:	
-	rm *.o
+	rm *.o prover
 

@@ -50,7 +50,6 @@ typedef struct {
 } Sentence;
 
 int numPairs;
-Pair triedPairs[MAXPRED*MAXPRED];
 PQueue *pq;
 
 int sentptr;
@@ -320,6 +319,7 @@ void RandomResolve()
 
     int i, j;
     int try1, try2;
+    int numToTry;
     rTime=0.0;
     rSteps=0;
     printf("\nRun your RandomResolve routine here\n");
@@ -333,17 +333,19 @@ void RandomResolve()
     //         }
     //     }
     // }
-    for(i=0; i<sentptr; i++){ 
-        insertWithPriority(pq, rand() % 10, i);
+    numToTry = sentptr-1;
+    for(i=0; i<sentptr-1; i++){ 
+        insertWithPriority(pq, rand() % 100, i);
     }
-    while(sentlist[sentptr-1].num_pred != 0)
+    for(i = 0; i< numToTry; i++)
     {
         getNext(pq, &try1);
         getNext(pq, &try2);       
+        insertWithPriority(pq,  rand() % 100, try1);
+        insertWithPriority(pq,  rand() % 100, try2); 
         printf("\nResolving %d and %d\n", try1, try2);   
-        tryResolution(try1, try2);
-        insertWithPriority(pq, rand() % 100, try1);
-        insertWithPriority(pq, rand() % 100, try2); 
+        if(tryResolution(try1, try2) != 0)
+            numToTry++;
         rSteps++;
     }
 
@@ -379,8 +381,8 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
     Parameter param2[MAXPARAM];
     memcpy(param1, sentlist[sent1].param[p1], sizeof(Parameter));
     memcpy(param2, sentlist[sent2].param[p2], sizeof(Parameter));
-    //param1=sentlist[sent1].param[p1];
-    //param2=sentlist[sent2].param[p2];
+    // *(param1)=*(sentlist[sent1].param[p1]);
+    // *(param2)=*(sentlist[sent2].param[p2]);
 
     for(param=0;param<predlist[sentlist[sent1].pred[p1]].numparam;param++)
     {
@@ -413,6 +415,7 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
 
 int tryResolution(int sent1, int sent2)
 {
+    int now = sentptr;
     Assignment theta [MAXPARAM];
     int p1,p2; 
     for(p1=0;p1<sentlist[sent1].num_pred;p1++) for(p2=0;p2<sentlist[sent2].num_pred;p2++)
@@ -425,7 +428,7 @@ int tryResolution(int sent1, int sent2)
             insertWithPriority(pq, rand() % 100, sentptr );
         }
     }
-    return 0;
+    return (now==sentptr)?0:1;
 }
 
 int AddSentenceFromResolution(int sent1, int sent2, int p1, int p2, Assignment *theta, int numAssign)
@@ -497,24 +500,19 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
 void printAssignments(Assignment *theta, int numAssign){
     int i;
     for(i=0; i<numAssign; i++){
-      //  printf("%s: Ii", 
+        printParam(*(theta[i].var));
+        printf(" = ");
+        printParam(*(theta[i].val));
+        printf("\n");
     }
-
 }
 
-//run your randomresolve routine here
-//checking params
-//the same
-//checking params
-//the same
-//adding sentence
-//b=d
-//c=d
-//performing subsititons
-
-
-
-
+void printParam(Parameter p){
+    if(constant(p))
+        printf("%s", p.con);
+    else
+        printf("%d", 'a' + (unsigned char)((p.var)%26));
+}
 
 /* You must write this function */
 void Resolve(void) {
