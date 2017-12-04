@@ -325,7 +325,7 @@ void RandomResolve()
     printf("\nRun your RandomResolve routine here\n");
     numToTry = sentptr-1;
     int curr = sentptr-1;
-    for(i=0; i<sentptr-1; i++){ 
+    for(i=0; i<sentptr; i++){ 
         insertWithPriority(pq, rand() % 100, i);
     }
     int num2;
@@ -353,14 +353,38 @@ void RandomResolve()
 /* You must write this function */
 void HeuristicResolve()
 {
-    hTime=0.0;
+    int i, j, try1, try2;
+    hTime=clock();
     hSteps=0;
     printf("\nRun your HeuristicResolve routine here\n");
+    for(i=0; i<sentptr-1; i++){ 
+        int heuristic = sentlist[i].num_pred;
+        insertWithPriority(pq, sentlist[i].num_pred, i);
+    }
+    int numToTry = sentptr-1;
+    int curr = sentptr-1;
+    for(i=0; i<sentptr; i++){ 
+        insertWithPriority(pq, rand() % 100, i);
+    }
+    int num2;
+    // for(i = 0; i< curr; i++)
+    // {
+    //     num2 = numToTry;
+    //     for(j = 0; j<num2; j++){   
+    //         getNext(pq, &try1);
+    //         getNext(pq, &try2);           
+    //         if(pairTried(try1, try2) == 0){
+    //             Pair newPair = {.first = i, .second = j};
+    //             triedPairs[numPairs] = newPair;
+    //             numPairs++;
+    //             if(tryResolution(i, j) != 0)
+    //                 numToTry++;
+    //         }
+    //         hSteps++;
+    //     }
+    // }
 
-    hTime=50.0; /* change these two lines to reflect the actual time, #steps */
-    hSteps=10;
-
-    printf("HeuristicResolve: #steps = %i, time = %lg\n\n",hSteps, hTime);
+    printf("HeuristicResolve: #steps = %i, time = %lg\n\n",hSteps, (clock() - hTime) / CLOCKS_PER_SEC);
 }
 
 /* You must write this function */
@@ -512,7 +536,7 @@ void printParam(Parameter p){
 /* You must write this function */
 void Resolve(void) {
     RandomResolve();
-    //HeuristicResolve();
+    HeuristicResolve();
     printf("Heuristic vs Random ratios:  hSteps/rSteps = %lg, hTime/rTime = %lg\n\n",(double)hSteps/(double)rSteps, hTime/rTime);
 }
 
