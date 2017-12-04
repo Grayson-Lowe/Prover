@@ -51,7 +51,7 @@ typedef struct {
 
 int numPairs;
 PQueue *pq;
-Pair triedPairs[MAXSENT*MAXSENT];
+Pair triedPairs[MAXPRED*MAXPRED];
 
 int sentptr;
 Sentence sentlist[MAXSENT];
@@ -348,7 +348,7 @@ void RandomResolve()
             //getNext(pq, &try2);       
             printf("\nResolving %d and %d\n", try1, try2);   
             if(pairTried(i, j) == 0){
-                Pair newPair = {first = i, second = j};
+                Pair newPair = {.first = i, .second = j};
                 triedPairs[numPairs] = newPair;
                 numPairs++;
                 if(tryResolution(i, j) != 0)
