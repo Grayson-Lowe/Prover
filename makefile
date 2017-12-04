@@ -1,8 +1,8 @@
-CC = cc
+CC = gcc
 TARGET = prover
-OBJ =  prover.o
-LIBS = 
-INC = -I./ 
+OBJ =  prover.o pqueue.o
+LIBS = pqueue.h
+INC = -I./
 DEF = 
 CFLAGS = $(INC) $(DEF) -g
 

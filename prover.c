@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <time.h>
+#include "pqueue.h"
 
 #define MAXPRED 50
 #define MAXPARAM 10
@@ -15,6 +16,11 @@ double rTime, hTime;
 int rSteps, hSteps;
 
 int RefuteFlag=0;
+
+// typedef struct {
+//     int first;
+//     int second;
+// } Pair;
 
 typedef struct {
     char name[32];   /* Predicate name */
@@ -42,6 +48,10 @@ typedef struct {
     int num_pred;             /* Added by T. Andersen.  Stores the number of predicates for this sentence */
     Parameter param[MAXPRED][MAXPARAM];   /* List of parameters for each predicate */
 } Sentence;
+
+int numPairs;
+Pair triedPairs[MAXPRED*MAXPRED];
+PQueue *pq;
 
 int sentptr;
 Sentence sentlist[MAXSENT];
@@ -84,11 +94,17 @@ void AddPredicatesWithSkip(int destSent, int srcSent, int skipPred)
     AddPredicates(destSent, srcSent, skipPred+1, sentlist[srcSent].num_pred);
 }
 
-void AddPredicates(int destSent, int srcSent, int someNum, int skipPred)
+void AddPredicates(int destSent, int srcSent, int start, int finish)
 {
     int i;
-    i =0;
-    return;
+    for(i= start; i<=finish; i++)
+    {
+        sentlist[destSent].pred[sentlist[destSent].num_pred] = sentlist[srcSent].pred[i];
+        sentlist[destSent].neg[sentlist[destSent].num_pred] = sentlist[srcSent].neg[i];
+        memcpy(sentlist[destSent].param[sentlist[destSent].num_pred], sentlist[srcSent].param[i], sizeof(Parameter)*MAXPARAM);
+        sentlist[destSent].num_pred++;
+    }
+
 }
 
 /* Add a predicate to the predicate list */
@@ -283,19 +299,56 @@ void AddKBSentence(void) {
     StringToSentence(sent);
 }
 
+// int pairTried(int i, int j){
+//     int k;
+//     for(k=0; k<numPairs; k++){
+//         if(triedPairs[k].first == i){
+//             if(triedPairs[k].second == j){
+//                 return 1;
+//             }
+//         }else if (triedPairs[k].second == i){
+//             if(triedPairs[k].first == j){
+//                 return 1;
+//             }
+//         }
+//     }
+//     return 0;
+// }
 /* You must write this function */
 void RandomResolve()
 {
+
     int i, j;
+    int try1, try2;
     rTime=0.0;
     rSteps=0;
     printf("\nRun your RandomResolve routine here\n");
-    for(i=0; i<sentptr; i++) 
-        for(j=1; j<sentlist[i].num_pred; j++)
-             tryResolution(i,j);
+    // for(i = 0; i<sentptr; i++){
+    //     for(j=0; j<sentptr; j++){
+    //         int try1 = pairTried(i,j);
+    //         if(try1){
+    //             tryResolution(i, j);
+    //             Pair newPair = {i, j};
+    //             triedPairs[numPairs] = newPair;
+    //         }
+    //     }
+    // }
+    for(i=0; i<sentptr; i++){ 
+        insertWithPriority(pq, rand() % 10, i);
+    }
+    while(sentlist[sentptr-1].num_pred != 0)
+    {
+        getNext(pq, &try1);
+        getNext(pq, &try2);       
+        printf("\nResolving %d and %d\n", try1, try2);   
+        tryResolution(try1, try2);
+        insertWithPriority(pq, rand() % 100, try1);
+        insertWithPriority(pq, rand() % 100, try2); 
+        rSteps++;
+    }
+
     ShowKB();
     rTime=100.0; /* change these two lines to reflect the actual time, #steps */
-    rSteps=20;
 
     printf("RandomResolve: #steps = %i, time = %lg\n\n",rSteps, rTime);
 }
@@ -325,7 +378,7 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
     Parameter param1[MAXPARAM];
     Parameter param2[MAXPARAM];
     memcpy(param1, sentlist[sent1].param[p1], sizeof(Parameter));
-    memcpy(param1, sentlist[sent2].param[p2], sizeof(Parameter));
+    memcpy(param2, sentlist[sent2].param[p2], sizeof(Parameter));
     //param1=sentlist[sent1].param[p1];
     //param2=sentlist[sent2].param[p2];
 
@@ -361,7 +414,7 @@ int unifyPred(int sent1,int p1, int sent2,int p2,Assignment *theta) {
 int tryResolution(int sent1, int sent2)
 {
     Assignment theta [MAXPARAM];
-    int p1,p2;
+    int p1,p2; 
     for(p1=0;p1<sentlist[sent1].num_pred;p1++) for(p2=0;p2<sentlist[sent2].num_pred;p2++)
     {
         int numAssign = unifyPred(sent1, p1, sent2, p2, theta);
@@ -369,7 +422,7 @@ int tryResolution(int sent1, int sent2)
         {//found match
             printf("Adding sentence\n");
             AddSentenceFromResolution(sent1, sent2, p1, p2, theta, numAssign);
-            sentptr++;
+            insertWithPriority(pq, rand() % 100, sentptr );
         }
     }
     return 0;
@@ -433,7 +486,7 @@ void performSubstitions(int s, Assignment *theta, int numAssign)
         for(y=0; y<predlist[sentlist[s].pred[x]].numparam; y++){
             for(z=0; z<numAssign; z++){
                 if(sentlist[s].param[x][y].var == theta[z].var->var){
-                    printf("Making assingment %s", variable(*theta[z].val)?"v":theta[z].val->con);
+                    printf("Making assingment %s\n", variable(*theta[z].val)?"v":theta[z].val->con);
                     sentlist[s].param[x][y] = *(theta[z]).val;
                 }
             }
@@ -484,7 +537,9 @@ int main(int argc, char *argv[])
 {
     char *filename,choice[64];
     int done;
-
+    numPairs = 0;
+    pq = (PQueue *) malloc(sizeof(PQueue));
+    init(pq);
     srand((unsigned int) time(0));
     if(argc > 2) {
         printf("Usage: prover [filename]\n");
