@@ -334,19 +334,22 @@ void RandomResolve()
     //     }
     // }
     numToTry = sentptr-1;
+    int curr = sentptr-1;
     for(i=0; i<sentptr-1; i++){ 
         insertWithPriority(pq, rand() % 100, i);
     }
-    for(i = 0; i< numToTry; i++)
+    int num2;
+    for(i = 0; i< curr; i++)
     {
-        getNext(pq, &try1);
-        getNext(pq, &try2);       
-        insertWithPriority(pq,  rand() % 100, try1);
-        insertWithPriority(pq,  rand() % 100, try2); 
-        printf("\nResolving %d and %d\n", try1, try2);   
-        if(tryResolution(try1, try2) != 0)
-            numToTry++;
-        rSteps++;
+        num2 = numToTry;
+        for(j = 0; j<num2; j++){
+            getNext(pq, &try1);
+            getNext(pq, &try2);       
+            printf("\nResolving %d and %d\n", try1, try2);   
+            if(tryResolution(try1, try2) != 0)
+                numToTry++;
+            rSteps++;
+        }
     }
 
     ShowKB();
